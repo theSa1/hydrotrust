@@ -48,27 +48,14 @@ const mainMenuItems = [
     icon: PlusCircle,
   },
   {
-    title: "Wallet",
-    url: "/dashboard/wallet",
+    title: "Producers",
+    url: "/dashboard/producers",
     icon: Wallet,
   },
   {
-    title: "Users",
-    url: "/dashboard/users",
+    title: "Oracles",
+    url: "/dashboard/oracles",
     icon: Users,
-  },
-];
-
-const bottomMenuItems = [
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-  },
-  {
-    title: "Help",
-    url: "/dashboard/help",
-    icon: HelpCircle,
   },
 ];
 
@@ -98,29 +85,6 @@ export function DashboardSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => {
-                const isActive = pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {bottomMenuItems.map((item) => {
                 const isActive = pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>

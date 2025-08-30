@@ -414,7 +414,7 @@ export default function SubsidyWizard() {
                 <SelectContent>
                   {availableApplicants.map((producer) => (
                     <SelectItem key={producer.address} value={producer.address}>
-                      {producer.address}
+                      {producer.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

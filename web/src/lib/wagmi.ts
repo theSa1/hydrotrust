@@ -16,9 +16,7 @@ export const ganache = {
 
 export const config = createConfig({
   chains: [ganache],
-  connectors: [
-    injected(), // MetaMask, etc.
-  ],
+  connectors: [injected()],
   transports: {
     [ganache.id]: http(),
   },
