@@ -29,38 +29,72 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-// Menu items for the sidebar
-const mainMenuItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Subsidies",
-    url: "/dashboard/subsidies",
-    icon: BarChart3,
-  },
-  {
-    title: "Add Subsidy",
-    url: "/dashboard/add-subsidy",
-    icon: PlusCircle,
-  },
-  {
-    title: "Producers",
-    url: "/dashboard/producers",
-    icon: Wallet,
-  },
-  {
-    title: "Oracles",
-    url: "/dashboard/oracles",
-    icon: Users,
-  },
-];
+import { useUserStore } from "@/app/state/user";
+import { useAccount, useDisconnect } from "wagmi";
+import { useRouter } from "next/navigation";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const user = useUserStore();
+  const { disconnect } = useDisconnect();
+  const router = useRouter();
+
+  const mainMenuItems =
+    user.role === "Government"
+      ? [
+          {
+            title: "Dashboard",
+            url: "/dashboard",
+            icon: Home,
+          },
+          {
+            title: "Subsidies",
+            url: "/dashboard/subsidies",
+            icon: BarChart3,
+          },
+          {
+            title: "Add Subsidy",
+            url: "/dashboard/add-subsidy",
+            icon: PlusCircle,
+          },
+          {
+            title: "Producers",
+            url: "/dashboard/producers",
+            icon: Wallet,
+          },
+          {
+            title: "Oracles",
+            url: "/dashboard/oracles",
+            icon: Users,
+          },
+        ]
+      : user.role === "Applicant"
+      ? [
+          {
+            title: "Dashboard",
+            url: "/dashboard",
+            icon: Home,
+          },
+          {
+            title: "Subsidies",
+            url: "/dashboard/subsidies",
+            icon: BarChart3,
+          },
+        ]
+      : user.role === "Oracle"
+      ? [
+          {
+            title: "Dashboard",
+            url: "/dashboard",
+            icon: Home,
+          },
+          {
+            title: "Subsidies",
+            url: "/dashboard/subsidies",
+            icon: BarChart3,
+          },
+        ]
+      : [];
 
   return (
     <Sidebar>
@@ -106,10 +140,19 @@ export function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Button variant="outline" className="w-full justify-start">
-                <LogOut />
-                <span>Sign Out</span>
-              </Button>
+              {user.address && (
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    disconnect();
+                    router.push("/dashboard");
+                  }}
+                >
+                  <LogOut />
+                  <span>Sign Out</span>
+                </Button>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

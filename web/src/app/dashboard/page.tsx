@@ -10,42 +10,7 @@ const Page = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const user = useUserStore();
-
-  // Authenticate and get role from API
-  useEffect(() => {
-    const fetchRole = async () => {
-      if (!address) {
-        user.resetUser();
-        return;
-      }
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setError(data.error || "Unknown error");
-          user.setUser({ address, role: null });
-        } else {
-          const data = await res.json();
-          user.setUser({ address, role: data.role });
-        }
-      } catch (e) {
-        setError("Failed to authenticate");
-        user.setUser({ address, role: null });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRole();
-  }, [address]);
 
   // UI for login
   if (!isConnected) {
@@ -59,7 +24,7 @@ const Page = () => {
     );
   }
 
-  if (loading) {
+  if (user.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         Loading...
@@ -67,10 +32,10 @@ const Page = () => {
     );
   }
 
-  if (error) {
+  if (user.error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-500">{user.error}</div>
         <Button onClick={() => disconnect()}>Disconnect</Button>
       </div>
     );

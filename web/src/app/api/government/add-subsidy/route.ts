@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 
 const bodySchema = z.object({
   name: z.string().min(3).max(100),
+  description: z.string().max(1000).optional(),
   governmentAddress: z.string().min(42).max(42),
   producerAddress: z.string().min(42).max(42),
   oracles: z.array(z.string().min(42).max(42)),
@@ -26,6 +27,7 @@ export const POST = async (req: Request) => {
 
     const {
       name,
+      description = "",
       governmentAddress,
       producerAddress,
       oracles,
@@ -49,8 +51,9 @@ export const POST = async (req: Request) => {
     });
 
     if (!producer) {
+      // Use the name as the producer name if not found, or fallback
       producer = await db.producer.create({
-        data: { address: producerAddress },
+        data: { address: producerAddress, name },
       });
     }
 
@@ -72,6 +75,7 @@ export const POST = async (req: Request) => {
     const subsidy = await db.subsidy.create({
       data: {
         name,
+        description,
         governmentId: government.id,
         producerId: producer.id,
         contractAddress,

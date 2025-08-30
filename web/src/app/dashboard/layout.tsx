@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   SidebarProvider,
   SidebarInset,
@@ -8,8 +8,55 @@ import {
 } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Separator } from "@/components/ui/separator";
+import { useUserStore } from "../state/user";
+import { useAccount } from "wagmi";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const user = useUserStore();
+  const { address } = useAccount();
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (!address) {
+        user.resetUser();
+        return;
+      }
+      user.setUser({ address, role: null, isLoading: true, error: null });
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          user.setUser({
+            address,
+            role: null,
+            isLoading: false,
+            error: data.error || "Unknown error",
+          });
+        } else {
+          const data = await res.json();
+          user.setUser({
+            address,
+            role: data.role,
+            isLoading: false,
+            error: null,
+          });
+        }
+      } catch (e) {
+        user.setUser({
+          address,
+          role: null,
+          isLoading: false,
+          error: "Failed to authenticate",
+        });
+      }
+    };
+    fetchRole();
+  }, [address]);
+
   return (
     <SidebarProvider>
       <DashboardSidebar />

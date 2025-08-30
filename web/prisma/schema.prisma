@@ -34,7 +34,8 @@ model Oracle {
 model Subsidy {
   id Int @id @default(autoincrement())
 
-  name String
+  name        String
+  description String
 
   governmentId Int
   government   Government @relation(fields: [governmentId], references: [id])

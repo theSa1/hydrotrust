@@ -1,16 +1,28 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 const querySchema = z.object({
-  governmentAddress: z.string().min(42).max(42).optional(),
+  address: z.string().min(42).max(42).optional(),
+  role: z.enum(["Government", "Applicant", "Oracle"]),
 });
 
 export const GET = async (req: Request) => {
   try {
     const url = new URL(req.url);
-    const governmentAddress = url.searchParams.get("governmentAddress");
+    const address = url.searchParams.get("address");
+    const role = url.searchParams.get("role");
 
-    const result = querySchema.safeParse({ governmentAddress });
+    if (!role) {
+      return new Response(
+        JSON.stringify({
+          error: "Missing role parameter",
+        }),
+        { status: 400 }
+      );
+    }
+
+    const result = querySchema.safeParse({ address, role });
 
     if (!result.success) {
       return new Response(
@@ -24,27 +36,17 @@ export const GET = async (req: Request) => {
 
     let subsidies;
 
-    if (governmentAddress) {
-      // Get subsidies for a specific government
-      const government = await db.government.findFirst({
-        where: { address: governmentAddress },
-      });
+    if (!address)
+      return NextResponse.json(
+        {
+          error: "Missing address parameter",
+        },
+        { status: 400 }
+      );
 
-      if (!government) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            subsidies: [],
-          }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
-
+    if (role === "Government") {
       subsidies = await db.subsidy.findMany({
-        where: { governmentId: government.id },
+        where: { government: { address } },
         include: {
           government: true,
           producer: true,
@@ -52,7 +54,7 @@ export const GET = async (req: Request) => {
         },
         orderBy: { id: "desc" },
       });
-    } else {
+    } else if (role === "Applicant") {
       // Get all subsidies (for admin view)
       subsidies = await db.subsidy.findMany({
         include: {
@@ -61,19 +63,24 @@ export const GET = async (req: Request) => {
           oracles: true,
         },
         orderBy: { id: "desc" },
+        where: { producer: { address } },
+      });
+    } else if (role === "Oracle") {
+      subsidies = await db.subsidy.findMany({
+        include: {
+          government: true,
+          producer: true,
+          oracles: true,
+        },
+        orderBy: { id: "desc" },
+        where: { oracles: { some: { address } } },
       });
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        subsidies: subsidies,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      subsidies: subsidies,
+    });
   } catch (error) {
     console.error("Error fetching subsidies:", error);
     return new Response(

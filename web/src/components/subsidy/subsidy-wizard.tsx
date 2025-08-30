@@ -175,6 +175,7 @@ export default function SubsidyWizard() {
         },
         body: JSON.stringify({
           name: data.name,
+          description: data.description,
           contractAddress,
           governmentAddress: address,
           producerAddress: data.applicant,

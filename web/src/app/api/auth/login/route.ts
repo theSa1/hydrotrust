@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
-// POST /api/auth/login
-// Body: { address: string }
+const bodySchema = z.object({
+  address: z.string().length(42),
+});
+
 export const POST = async (req: Request) => {
   try {
-    const { address } = await req.json();
-    if (!address || typeof address !== "string" || address.length !== 42) {
-      return NextResponse.json({ error: "Invalid address" }, { status: 400 });
-    }
+    const { address } = bodySchema.parse(await req.json());
 
     console.log("Authenticating address:", address);
     const [government, producer, oracle] = await Promise.all([
@@ -23,8 +23,10 @@ export const POST = async (req: Request) => {
     else if (oracle) role = "Oracle";
 
     if (!role) {
-      await db.producer.create({ data: { address } });
-      role = "Applicant";
+      return NextResponse.json(
+        { error: "Address not registered" },
+        { status: 401 }
+      );
     }
 
     return NextResponse.json({ address, role });
