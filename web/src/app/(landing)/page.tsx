@@ -10,6 +10,7 @@ import { AlertTriangle, Clock, Eye, Target, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Solution from "./_components/solution";
 import Benefits from "./_components/benefits";
+import Footer from "./_components/footer";
 
 const Page = () => {
   return (
@@ -21,7 +22,11 @@ const Page = () => {
         className="min-h-screen container mx-auto flex flex-col-reverse md:flex-row items-center justify-center gap-8 md:gap-16 px-5 md:px-0 pt-32 md:pt-0"
       >
         <BackgroundBeams />
-        <Safari className="w-3xl" url="www.hydrotrust.com" />
+        <Safari
+          className="w-3xl"
+          url="www.hydrotrust.com"
+          imageSrc="/desktop-mock.png"
+        />
         <div className="z-20 text-center md:text-left w-full max-w-xl">
           <Badge text="BlockChain X Green Hydrogen" />
           <h1 className="text-4xl md:text-5xl font-bold z-10 leading-tight md:leading-[1.1]">
@@ -117,7 +122,7 @@ const Page = () => {
         id="problem"
         className="container mx-auto my-24 md:my-32 text-center px-5"
       >
-        <Card className="p-8">
+        <Card className="p-8 max-w-6xl mx-auto">
           <div className="flex items-center justify-center mb-6">
             <div className="relative">
               <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
@@ -171,6 +176,8 @@ const Page = () => {
       <Solution />
 
       <Benefits />
+
+      <Footer />
     </main>
   );
 };
